@@ -190,9 +190,9 @@ www.r-site.net
         // inline action(result (*f)(eventMask,navNode&,prompt&)):hFn((callback)f) {}
         //inline action(result (*f)(eventMask,navNode&,prompt&,Stream&)):hFn((callback)f) {}
         inline action(callback f):hFn(f) {}
-        inline action(actionReceiver* receiver): receiver(receiver), hFn((callback)noAction) {}
+        inline action(actionReceiver* receiver): receiver(receiver), hFn((callback)doNothing) {}
         inline result operator()(FUNC_PARAMS) const {
-            if (!!receiver) receiver->call(FUNC_PARAMS);
+            if (!!receiver) receiver->call(FUNC_VALUES);
             return ((callback)memPtr(hFn))(FUNC_VALUES);
         }
     };
