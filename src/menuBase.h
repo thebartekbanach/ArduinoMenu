@@ -171,11 +171,17 @@ www.r-site.net
     template<void (*A)(eventMask event)> result callCaster(eventMask event);
     template<void (*A)()> result callCaster();
 
+    class actionReceiver {
+        public:
+            virtual void call(FUNC_PARAMS) = 0;
+    };
+
     //menu element associated function (called for all element registered events)
     struct actionRaw {callback hFn;};
     class action {
       public:
         callback hFn;//the hooked callback function
+        actionReceiver* receiver = nullptr;
         inline action() {}
         //inline action(void (*f)()):hFn((callback)f) {}
         inline action(result (*f)()):hFn((callback)f) {}
@@ -184,7 +190,11 @@ www.r-site.net
         // inline action(result (*f)(eventMask,navNode&,prompt&)):hFn((callback)f) {}
         //inline action(result (*f)(eventMask,navNode&,prompt&,Stream&)):hFn((callback)f) {}
         inline action(callback f):hFn(f) {}
-        inline result operator()(FUNC_PARAMS) const {return ((callback)memPtr(hFn))(FUNC_VALUES);}
+        inline action(actionReceiver* receiver): receiver(receiver), hFn((callback)noAction) {}
+        inline result operator()(FUNC_PARAMS) const {
+            if (!!receiver) receiver->call(FUNC_PARAMS);
+            return ((callback)memPtr(hFn))(FUNC_VALUES);
+        }
     };
 
     extern action noAction;
